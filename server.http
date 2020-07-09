@@ -1,0 +1,24 @@
+
+GET http://localhost:5000/users/test HTTP/1.1
+
+###
+
+POST http://localhost:5000/users/register HTTP/1.1
+content-type: application/json
+
+{
+    "email": "1test@test.test",
+    "password": "123456",
+    "passwordCheck": "123456",
+    "displayName": "Array"
+}
+
+######
+
+POST http://localhost:5000/users/login HTTP/1.1
+content-type: application/json
+
+{
+    "email": "1test@test.test",
+    "password": "123456",
+}
