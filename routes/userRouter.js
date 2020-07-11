@@ -4,6 +4,8 @@ const bcrypt = require("bcryptjs");
 const userRouter = require("express").Router();
 const jwt = require("jsonwebtoken");
 
+const tokenValidation = require("../middleware/auth");
+
 userRouter.post("/register", async (req, res) => {
 	try {
 		let { email, password, passwordCheck, displayName } = req.body;
@@ -59,7 +61,28 @@ userRouter.post("/login", async (req, res) => {
 		const token = jwt.sign({ id: user._id }, process.env.JWT_KEY);
 		res.json(token);
 	} catch (error) {
-		console.log(error.message);
+		res.status(500).json({ error: error.message });
+	}
+});
+
+userRouter.delete("/delete", tokenValidation, async (req, res) => {
+	try {
+		const deletedUser = await userModel.findByIdAndDelete(req.user);
+		res.json(deletedUser);
+	} catch (error) {
+		res.status(500).json({ error: error.message });
+	}
+});
+
+userRouter.post("/isTokenValid", async (req, res) => {
+	try {
+		const token = req.header("x-auth-token");
+		if (!token) return res.json(false);
+		const validateToken = jwt.verify(token, process.env.JWT_KEY);
+		if (!validateToken) return res.json(false);
+		const user = await userModel.findById(validateToken.id);
+		if (!user) return res.json(false);
+	} catch (error) {
 		res.status(500).json({ error: error.message });
 	}
 });
