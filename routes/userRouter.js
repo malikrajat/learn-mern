@@ -9,7 +9,7 @@ const tokenValidation = require("../middleware/auth");
 userRouter.post("/register", async (req, res) => {
 	try {
 		let { email, password, passwordCheck, displayName } = req.body;
-
+		console.log(email, password, passwordCheck, displayName);
 		//validation
 		if (!email || !password || !passwordCheck) {
 			return res.status(400).json({ msg: "Required filled is missing." });
@@ -59,7 +59,13 @@ userRouter.post("/login", async (req, res) => {
 		const isMatch = await bcrypt.compare(password, user.password);
 		if (!isMatch) return res.status(400).json({ msg: "Invalid logins." });
 		const token = jwt.sign({ id: user._id }, process.env.JWT_KEY);
-		res.json(token);
+		res.json({
+			token,
+			user: {
+				id: user._id,
+				displayName: user.displayName,
+			},
+		});
 	} catch (error) {
 		res.status(500).json({ error: error.message });
 	}
