@@ -1,8 +1,8 @@
-const { model } = require("mongoose");
 const userModel = require("../models/userModel");
 const bcrypt = require("bcryptjs");
 const userRouter = require("express").Router();
 const jwt = require("jsonwebtoken");
+const auth = require("../middleware/auth");
 
 const tokenValidation = require("../middleware/auth");
 
@@ -77,14 +77,23 @@ userRouter.delete("/delete", tokenValidation, async (req, res) => {
 userRouter.post("/isTokenValid", async (req, res) => {
 	try {
 		const token = req.header("x-auth-token");
-		if (!token) return res.json(false);
+		if (!token) return res.status(204).json(false);
 		const validateToken = jwt.verify(token, process.env.JWT_KEY);
-		if (!validateToken) return res.json(false);
+		if (!validateToken) return res.status(204).json(false);
 		const user = await userModel.findById(validateToken.id);
-		if (!user) return res.json(false);
+		if (!user) return res.status(204).json(false);
+		res.status(200).json(true);
 	} catch (error) {
 		res.status(500).json({ error: error.message });
 	}
+});
+
+userRouter.get("/", auth, async (req, res) => {
+	const user = await userModel.findById(req.user);
+	res.status(200).json({
+		displayName: user.displayName,
+		id: user._id,
+	});
 });
 
 module.exports = userRouter;
