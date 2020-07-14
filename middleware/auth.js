@@ -9,7 +9,7 @@ const auth = (req, res, next) => {
 			return res.status(401).json({ msg: "Token is not valid." });
 
 		req.user = validateToken.id;
-		console.log(validateToken);
+		// console.log(validateToken);
 		next();
 	} catch (error) {
 		res.status(500).json({ error: error.message });
